@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { fetchGameData } from "@/services/gameAPI"; // Import the structured API function
+import { fetchGameData } from "@/services/gameAPI";
+
+interface GameData {
+  id: number;
+  name: string;
+  // Add other properties if needed
+}
 
 interface GameLoadingProps {
   gameID: number;
   backgroundColor: string;
   gameNameStyle: React.CSSProperties;
-  onDataLoaded: (data: any) => void; // New prop for passing game data back to the parent
+  onDataLoaded: (data: GameData) => void;
 }
 
 const GameLoading: React.FC<GameLoadingProps> = ({
@@ -21,20 +27,13 @@ const GameLoading: React.FC<GameLoadingProps> = ({
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const loadGameData = async () => {
       try {
-        // Step 1: Start loading
-        
         setProgress(20);
-        
         const data = await fetchGameData(gameID);
-
-        
         setProgress(70);
         await delay(1000);
-        
         setProgress(100);
         await delay(1000);
         setLoadingComplete(true);
-        // Pass the fetched data to the parent component
         onDataLoaded(data);
       } catch (error) {
         setLoadingComplete(true);
@@ -53,7 +52,6 @@ const GameLoading: React.FC<GameLoadingProps> = ({
       <h1 style={gameNameStyle} className="mt-4 text-2xl font-bold">
         {gameID}
       </h1>
-
       {progress <= 100 && !loadingComplete && (
         <>
           <div className="w-[60vw] max-w-lg h-2 mt-8 bg-gray-300 rounded-full m-4">
@@ -65,11 +63,8 @@ const GameLoading: React.FC<GameLoadingProps> = ({
           <p className="mt-2 text-lg font-semibold">{progress}%</p>
         </>
       )}
-
       {progress < 100 && loadingComplete && (
-        <button
-          className="mt-8 px-6 py-2 rounded-full bg-sky-600 text-white font-bold hover:bg-sky-700"
-        >
+        <button className="mt-8 px-6 py-2 rounded-full bg-sky-600 text-white font-bold hover:bg-sky-700">
           Failed to load Game
         </button>
       )}
