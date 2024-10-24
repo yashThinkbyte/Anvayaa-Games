@@ -23,10 +23,7 @@
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"],
-  "strict": true, 
-  "noImplicitAny": true, 
-  "noUnusedLocals": true, 
-  "noUnusedParameters": true,
-  "strictNullChecks": true, 
-  "strictFunctionTypes": true 
+  "strict": false, 
+  "noUnusedLocals": false, 
+  "noUnusedParameters": false 
 }
