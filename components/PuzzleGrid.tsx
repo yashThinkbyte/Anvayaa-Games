@@ -1,6 +1,6 @@
 import React from "react";
 import DraggableCard from "./DraggableCard"; // Import your DraggableCard component
-import { Droppable, Draggable } from "react-beautiful-dnd";
+import { Droppable } from "react-beautiful-dnd"; // Only import Droppable
 
 interface PuzzleGridProps {
   grid: Array<Array<{ id: string; name: string } | null>>;
