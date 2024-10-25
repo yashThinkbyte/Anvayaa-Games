@@ -35,7 +35,8 @@ const GamePage: React.FC = () => {
     const searchParams = useSearchParams();
     const gameId = searchParams.get('gameId');
     const [gameState, setGameState] = useState<'loading' | 'playing' | 'end' | 'newgame'>('loading');
-    const [gameData, setGameData] = useState<Record<string, any> | null>(null); // Use Record<string, any> for the type
+    const [score, setScore] = useState<number>(0);
+    const [gameData, setGameData] = useState<any>(null);
     const router = useRouter();
 
     // Get the corresponding game component from the mapping
@@ -48,7 +49,9 @@ const GamePage: React.FC = () => {
         }
     };
 
-    const handleGameEnd = () => {
+    const handleGameEnd = (finalScore: number) => {
+        console.log("called here");
+        setScore(finalScore);
         setGameState('end');
     };
 
@@ -66,16 +69,18 @@ const GamePage: React.FC = () => {
     };
 
     useEffect(() => {
+
+        // Reset game data and state when the gameId changes
         if (gameId) {
             setTimeout(() => {
                 setGameData(null);
                 setGameState('loading');
             }, 0);
         }
-    }, [gameId]);
+    }, [gameId]); // Detect changes to gameId
 
     if (!GameComponent) {
-        return <div>Game not found</div>;
+        return <div>Game not found</div>; // Render an error if the game is not in the mapping
     }
 
     return (
@@ -99,8 +104,8 @@ const GamePage: React.FC = () => {
             {gameState === 'end' && (
                 <GameCompletion
                     timeTaken='12'
-                    gameName='Some Game'
-                    result='Success'
+                    gameName='asds'
+                    result='test'
                     gameID={Number(gameId)}
                     onContinue={continueGame}
                     onNewGame={handleNewGame}

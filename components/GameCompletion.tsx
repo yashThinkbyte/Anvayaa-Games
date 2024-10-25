@@ -1,18 +1,24 @@
-import React from "react";
+import React, {useEffect} from "react";
+
 
 interface GameCompletionProps {
   timeTaken: string;
+  gameName: string;
   result: string;
-  onNewGame: () => void;
+  gameID: number;
+  onNewGame: () => void; // New prop for passing game data back to the parent
   onContinue: () => void;
 }
 
-const GameCompletion: React.FC<GameCompletionProps> = ({
+const GameCompletion: React.FC<GameCompletionProps> = ({ 
   timeTaken,
+  gameName,
   result,
-  onNewGame,
+  gameID,
+  onNewGame, // New prop for passing game data back to the parent
   onContinue,
-}) => {
+ }) => {
+
   const handleContinue = () => {
     onContinue();
   };
@@ -21,8 +27,10 @@ const GameCompletion: React.FC<GameCompletionProps> = ({
     onNewGame();
   };
 
+
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-gray-100 shadow-lg rounded-lg">
+
       <div className="text-center space-y-6 bg-white p-8 rounded-xl shadow-lg">
         <h1 className="text-4xl font-bold text-green-600 animate-bounce">
           🎉 Congratulations! 🎉
@@ -32,13 +40,13 @@ const GameCompletion: React.FC<GameCompletionProps> = ({
             <div className="stat p-4 bg-blue-50 rounded-lg">
               <h3 className="text-lg font-semibold text-blue-700">Time</h3>
               <p className="text-2xl font-bold text-blue-900">
-                {timeTaken || "0"}
+                {(timeTaken || 0)}
               </p>
             </div>
             <div className="stat p-4 bg-green-50 rounded-lg">
               <h3 className="text-lg font-semibold text-green-700">Moves</h3>
               <p className="text-2xl font-bold text-green-900">
-                {result || "0"}
+                {result || 0}
               </p>
             </div>
           </div>
@@ -51,12 +59,14 @@ const GameCompletion: React.FC<GameCompletionProps> = ({
         >
           Continue
         </button>
+
         <button
           onClick={openNewGame}
           className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition duration-300 m-1"
         >
           New Game
         </button>
+
       </div>
     </div>
   );
