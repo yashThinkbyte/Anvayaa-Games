@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import DraggableCard from "./DraggableCard";
-import { Droppable } from "react-beautiful-dnd";
+import { Droppable, Draggable } from "react-beautiful-dnd";
 
 interface PileProps {
-  pile: Array<{ id: string; name: string }>;
+  pile: Array<{ id: number; image_link: string }>;
 }
 
 const Pile: React.FC<PileProps> = ({ pile }) => {
-  const [shuffledPile, setShuffledPile] = useState<Array<{ id: string; name: string }>>([]);
+  const [shuffledPile, setShuffledPile] = useState<Array<{ id: number; image_link: string }>>([]);
 
   // Fisher-Yates shuffle algorithm to randomize the pile
-  const shuffleArray = (array: Array<{ id: string; name: string }>) => {
+  const shuffleArray = (array: Array<{ id: number; image_link: string }>) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -25,7 +24,7 @@ const Pile: React.FC<PileProps> = ({ pile }) => {
   }, [pile]);
 
   return (
-    <Droppable droppableId="pile">
+    <Droppable droppableId="pile" direction="horizontal">
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -33,7 +32,24 @@ const Pile: React.FC<PileProps> = ({ pile }) => {
           className="pile-container border p-2 grid grid-cols-3 gap-2 min-h-20 min-w-60"
         >
           {shuffledPile.map((item, index) => (
-            <DraggableCard key={item.id} id={item.id} name={item.name} index={index} />
+            <Draggable key={item.id} draggableId={item.id.toString()} index={index}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={`w-20 h-20 flex items-center justify-center ${
+                    snapshot.isDragging ? "bg-blue-100" : "bg-white"
+                  }`}
+                >
+                  <img
+                    src={item.image_link}
+                    alt={`Puzzle piece ${item.id}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </Draggable>
           ))}
           {provided.placeholder}
         </div>

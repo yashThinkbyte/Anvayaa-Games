@@ -1,11 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import DraggableCard from "./DraggableCard";
-import Droppable from "./Droppable";
-
-
+import React, { useState, useEffect } from "react";
+import { DragDropContext, DropResult, Droppable, Draggable } from "react-beautiful-dnd";
 
 interface MatchItem {
   image_link?: string;
@@ -23,9 +19,23 @@ interface MatchItemsBoardProps {
   onGameEnd: () => void;
 }
 
-
 const MatchItemsBoard: React.FC<MatchItemsBoardProps> = ({ gameData, onGameEnd }) => {
-  const [rightDropBox, setRightDropBox] = useState(gameData.rightItems);
+  const [rightDropBox, setRightDropBox] = useState<MatchItem[]>([]);
+
+  // Shuffle array using Fisher-Yates algorithm
+  const shuffleArray = (array: MatchItem[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Set initial shuffled state for rightDropBox
+  useEffect(() => {
+    setRightDropBox(shuffleArray(gameData.rightItems));
+  }, [gameData.rightItems]);
 
   // Handle drag-and-drop logic
   const handleOnDragEnd = (result: DropResult) => {
@@ -46,47 +56,58 @@ const MatchItemsBoard: React.FC<MatchItemsBoardProps> = ({ gameData, onGameEnd }
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <div className="flex h-screen p-8 space-x-8">
+        {/* Left Column */}
         <div className="w-1/2">
-          <h2 className="text-center mb-4">{gameData.leftTitle}</h2>
-          {gameData.leftItems.map((leftItem, index) => (
-            <div key={`${leftItem.id}`} className="flex items-center mb-4">
-              <span>{leftItem.name}</span>
+          <h2 className="text-center mb-4 text-xl font-bold">{gameData.leftTitle}</h2>
+          <div className="space-y-4">
+            {gameData.leftItems.map((leftItem, index) => (
               <div
-                className={`ml-2 h-6 w-6 rounded-full ${
-                  isMatched(index) ? "bg-green-500" : "bg-gray-500"
+                key={leftItem.id}
+                className={`w-full h-16 border rounded flex items-center justify-between p-4 ${
+                  isMatched(index) ? "bg-green-100" : "bg-white"
                 }`}
-              />
-            </div>
-          ))}
+              >
+                <span className="text-lg">{leftItem.name}</span>
+                <div
+                  className={`h-6 w-6 rounded-full ${
+                    isMatched(index) ? "bg-green-500" : "bg-gray-400"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
+        {/* Right Column */}
         <div className="w-1/2">
-          <h2 className="text-center mb-4">{gameData.rightTitle}</h2>
-          {rightDropBox.map((item, index) => (
-            <Droppable key={`droppable-${index}`} droppableId={`droppable-${index}`}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={`w-full h-16 mb-2 border rounded flex items-center justify-center transition-all ${
-                    snapshot.isDraggingOver ? "shadow-lg" : ""
-                  }`}
-                >
-                  {item.id !== 0 ? (
-                    <DraggableCard
-                      key={`draggable-${item.id}`}
-                      id={String(item.id)}
-                      name={item.name}
-                      index={index}
-                    />
-                  ) : (
-                    <span>Empty</span>
-                  )}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          ))}
+          <h2 className="text-center mb-4 text-xl font-bold">{gameData.rightTitle}</h2>
+          <Droppable droppableId="rightColumn" direction="vertical">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-4"
+              >
+                {rightDropBox.map((item, index) => (
+                  <Draggable key={item.id} draggableId={String(item.id)} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`w-full h-16 border rounded flex items-center justify-center ${
+                          snapshot.isDragging ? "bg-blue-100 shadow-lg" : "bg-white"
+                        }`}
+                      >
+                        <span className="text-lg">{item.name}</span>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
         </div>
       </div>
     </DragDropContext>

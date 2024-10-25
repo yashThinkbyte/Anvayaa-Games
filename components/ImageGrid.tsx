@@ -23,7 +23,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({
           }`}
           onClick={() => handleClick && handleClick(element, index)}
         >
-          {placeholder && element === "" ? " " : element}
+          {placeholder && element === "" ? " " : <img src={element}></img>}
         </div>
       ))}
     </div>

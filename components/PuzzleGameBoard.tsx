@@ -4,30 +4,33 @@ import React, { useState, useCallback, useEffect } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import PuzzleGrid from "./PuzzleGrid";
 import Pile from "./Pile";
-import {Howl} from 'howler'
+import { Howl } from "howler";
 
-// Correct order of puzzle pieces for validation
-const correctOrder = [
-  { id: "1", name: "Piece 1" },
-  { id: "2", name: "Piece 2" },
-  { id: "3", name: "Piece 3" },
-  { id: "4", name: "Piece 4" },
-  { id: "5", name: "Piece 5" },
-  { id: "6", name: "Piece 6" },
-  { id: "7", name: "Piece 7" },
-  { id: "8", name: "Piece 8" },
-  { id: "9", name: "Piece 9" },
-];
-const dropSound = new Howl({ src: ['/sounds/success.mp3'] });
-const initialPuzzleItems = [...correctOrder];
+interface PuzzlePiece {
+  image_link: string;
+  id: number;
+}
 
-const PuzzleGameBoard: React.FC = () => {
-  // Grid state
-  const [grid, setGrid] = useState<Array<Array<{ id: string; name: string } | null>>>([
-    [null, null, null],
-    [null, null, null],
-    [null, null, null],
-  ]);
+interface PuzzleGameBoardProps {
+  gameData: {
+    pieces: PuzzlePiece[];
+    gridSize: number;
+  };
+  onGameEnd: () => void;
+}
+
+const dropSound = new Howl({ src: ["/sounds/success.mp3"] });
+
+const PuzzleGameBoard: React.FC<PuzzleGameBoardProps> = ({ gameData, onGameEnd }) => {
+  // Initialize the grid with null values
+  const initialGrid = Array.from({ length: gameData.gridSize }, () =>
+    Array(gameData.gridSize).fill(null)
+  );
+  const [grid, setGrid] = useState<Array<Array<{ id: number; image_link: string } | null>>>(
+    initialGrid
+  );
+
+  const initialPuzzleItems = [...gameData.pieces];
 
   // Initial pile of puzzle pieces
   const [pile, setPile] = useState(initialPuzzleItems);
@@ -43,8 +46,8 @@ const PuzzleGameBoard: React.FC = () => {
   // Check if the grid arrangement is correct
   const checkPuzzleCorrectness = () => {
     const flatGrid = grid.flat();
-    for (let i = 0; i < correctOrder.length; i++) {
-      if (!flatGrid[i] || flatGrid[i]?.id !== correctOrder[i].id) {
+    for (let i = 0; i < gameData.pieces.length; i++) {
+      if (!flatGrid[i] || flatGrid[i]?.id !== gameData.pieces[i].id) {
         return false;
       }
     }
@@ -54,6 +57,7 @@ const PuzzleGameBoard: React.FC = () => {
   // Handle dragging end logic
   const handleOnDragEnd = useCallback(
     (result: DropResult) => {
+      console.log("here");
       const { source, destination } = result;
 
       // If no destination, exit
@@ -65,7 +69,7 @@ const PuzzleGameBoard: React.FC = () => {
         const [destRow, destCol] = destination.droppableId.split("-").slice(1).map(Number);
 
         setGrid((prevGrid) => {
-          const updatedGrid = [...prevGrid];
+          const updatedGrid = prevGrid.map((row) => [...row]);
           const movedPiece = updatedGrid[sourceRow][sourceCol];
 
           // If there is a piece in the destination cell, move it back to the pile
@@ -78,7 +82,7 @@ const PuzzleGameBoard: React.FC = () => {
           updatedGrid[sourceRow][sourceCol] = null;
           updatedGrid[destRow][destCol] = movedPiece;
 
-          dropSound.play()
+          dropSound.play();
 
           return updatedGrid;
         });
@@ -91,10 +95,9 @@ const PuzzleGameBoard: React.FC = () => {
         const pieceToReturn = grid[sourceRow][sourceCol];
 
         if (pieceToReturn) {
-          // Remove the piece from the grid and return it to the pile
-          dropSound.play()
+          dropSound.play();
           setGrid((prevGrid) => {
-            const updatedGrid = [...prevGrid];
+            const updatedGrid = prevGrid.map((row) => [...row]);
             updatedGrid[sourceRow][sourceCol] = null;
             return updatedGrid;
           });
@@ -108,12 +111,12 @@ const PuzzleGameBoard: React.FC = () => {
       // If dragging from pile to grid
       if (destination.droppableId.startsWith("grid") && source.droppableId === "pile") {
         const [destRow, destCol] = destination.droppableId.split("-").slice(1).map(Number);
-        const movedPiece = pile.find((item) => item.id === result.draggableId);
+        const movedPiece = pile.find((item) => item.id.toString() === result.draggableId);
 
         if (!movedPiece) return;
 
         setGrid((prevGrid) => {
-          const updatedGrid = [...prevGrid];
+          const updatedGrid = prevGrid.map((row) => [...row]);
           const currentPieceInGrid = prevGrid[destRow][destCol];
 
           // If there is already a piece in the grid cell, return it to the pile
@@ -127,7 +130,7 @@ const PuzzleGameBoard: React.FC = () => {
         });
         dropSound.play();
         // Remove the new piece from the pile
-        setPile((prevPile) => prevPile.filter((item) => item.id !== result.draggableId));
+        setPile((prevPile) => prevPile.filter((item) => item.id.toString() !== result.draggableId));
       }
     },
     [pile, grid]
@@ -138,13 +141,14 @@ const PuzzleGameBoard: React.FC = () => {
     if (isGridFilled()) {
       if (checkPuzzleCorrectness()) {
         setMessage("Correct Puzzle");
+        onGameEnd();
       } else {
         setMessage("Incorrect Puzzle");
       }
     } else {
       setMessage(""); // Reset message if grid is not filled
     }
-  }, [grid]);
+  }, [grid, onGameEnd]);
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>

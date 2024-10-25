@@ -1,13 +1,17 @@
 import React from "react";
-import DraggableCard from "./DraggableCard"; // Import your DraggableCard component
 import { Droppable, Draggable } from "react-beautiful-dnd";
 
 interface PuzzleGridProps {
-  grid: Array<Array<{ id: string; name: string } | null>>;
+  grid: Array<Array<{ id: number; image_link: string } | null>>;
 }
 
 const PuzzleGrid: React.FC<PuzzleGridProps> = ({ grid }) => (
-  <div className="grid grid-cols-3 gap-2">
+  <div
+    className={`grid gap-2`}
+    style={{
+      gridTemplateColumns: `repeat(${grid.length}, minmax(0, 1fr))`, // Set columns based on grid size
+    }}
+  >
     {grid.map((row, rowIndex) =>
       row.map((cell, colIndex) => (
         <Droppable key={`grid-${rowIndex}-${colIndex}`} droppableId={`grid-${rowIndex}-${colIndex}`}>
@@ -18,11 +22,32 @@ const PuzzleGrid: React.FC<PuzzleGridProps> = ({ grid }) => (
               className="w-20 h-20 border rounded shadow flex items-center justify-center"
             >
               {cell ? (
-                <DraggableCard id={cell.id} name={cell.name} index={colIndex} />
+                <Draggable
+                  key={cell.id.toString()}
+                  draggableId={cell.id.toString()}
+                  index={rowIndex * grid.length + colIndex}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={`w-full h-full flex items-center justify-center ${
+                        snapshot.isDragging ? "bg-blue-100" : "bg-white"
+                      }`}
+                    >
+                      <img
+                        src={cell.image_link}
+                        alt="Puzzle piece"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </Draggable>
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-200 text-black">
                   ?
-                </div> 
+                </div>
               )}
               {provided.placeholder}
             </div>

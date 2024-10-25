@@ -34,7 +34,7 @@ const gameComponents: { [key: string]: React.FC<any> } = {
 const GamePage: React.FC = () => {
     const searchParams = useSearchParams();
     const gameId = searchParams.get('gameId');
-    const [gameState, setGameState] = useState<'loading' | 'playing' | 'end' | 'newgame'>('loading');
+    const [gameState, setGameState] = useState<'loading' | 'playing' | 'end' | 'newgame'>('playing');
     const [score, setScore] = useState<number>(0);
     const [gameData, setGameData] = useState<any>(null);
     const router = useRouter();

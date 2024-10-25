@@ -1,7 +1,7 @@
 
 "use client";
 import React, { useState } from "react";
-import SequenceGameBoard from "@/components/SequenceGameBoard";
+// import SequenceGameBoard from "@/components/SequenceGameBoard";
 
 const GamePage = () => {
   const [gameStarted, setGameStarted] = useState(false);
@@ -53,7 +53,7 @@ const GamePage = () => {
         <>
           <h1 className="text-2xl font-bold mt-2 mb-3">Arrange them in order</h1>
           <div className="flex-1 flex justify-center">
-            <SequenceGameBoard />
+            {/* <SequenceGameBoard /> */}
           </div>
         </>
       )}
