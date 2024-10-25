@@ -1,21 +1,28 @@
 "use client";
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Login() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure the component is mounted on the client side
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleLogin = async () => {
-    // Here, add your authentication logic (API call, context update, etc.)
     if (username === 'user' && password === 'password') {
-      // Mock authentication logic
       router.push('/dashboard'); // Redirect to dashboard after login
     } else {
       alert('Invalid credentials');
     }
   };
+
+  // Prevent rendering during server-side rendering
+  if (!isMounted) return null;
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
